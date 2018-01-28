@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 #iiyama = python2
 #jetbot = python3
@@ -39,17 +39,11 @@ class ObjectFollowingController:
         collision_model.load_state_dict(torch.load(avoidance_model_path))
         collision_model = collision_model.to(self.device)
         self.collision_model = collision_model.eval().half()
-
-
         self.speed = rospy.get_param('~speed')
         self.turn_block = rospy.get_param('~turn_block')
         self.turn_gain = rospy.get_param('~turn_gain')
         self.target_label = rospy.get_param('~target_label')
         self.display = rospy.get_param('~display')
-
-    def start(self):
-        rate = rospy.Rate(10)
-        self._publish_loop()
 
     def _decide_blocked(self):
         x = self._preprocess(self.pil_image)
@@ -61,12 +55,11 @@ class ObjectFollowingController:
     def _object_detection(self):
         image = self.cv_image.copy()
         (height, width, channel) = image.shape
-        #detections = self.detection_model.predictor(image) # draw all detections on image
         detections = self.detection_model(image) # draw all detections on image
         for det in detections[0]:
             bbox = det['bbox']
-            #cv2.rectangle(image, (int(width * bbox[0]), int(height * bbox[1])), 
-            #              (int(width * bbox[2]), int(height * bbox[3])), (255, 0, 0), 2)
+            cv2.rectangle(image, (int(width * bbox[0]), int(height * bbox[1])), 
+                          (int(width * bbox[2]), int(height * bbox[3])), (255, 0, 0), 2)
     
         # select detections that match selected class label
         matching_detections = [d for d in detections[0] if d['label'] == self.target_label]
@@ -95,7 +88,6 @@ class ObjectFollowingController:
                 rdets.append(det)
         return rdets
 
-
     def _decide_motor_value(self):
         prob_blocked = self._decide_blocked()
         det = self._object_detection()
@@ -118,7 +110,8 @@ class ObjectFollowingController:
 
         return forward, angle
 
-    def _publish_loop(self):
+    def publish_loop(self):
+        rate = rospy.Rate(10)
         while not rospy.is_shutdown():
             if self.pil_image is None:
                 rospy.logwarn("No Image subscride.")
@@ -129,6 +122,7 @@ class ObjectFollowingController:
             twist.angular.z = -angle
             rospy.loginfo("linear_x: {}, angular_z: {}".format(twist.linear.x, twist.angular.z))
             self._cmd_vel_pub.publish(twist)
+            rate.sleep()
 
     def _preprocess(self, image):
         mean = torch.Tensor([0.485, 0.456, 0.406]).to(self.device).half()
@@ -144,5 +138,4 @@ class ObjectFollowingController:
 
 if __name__ == '__main__':
     oc = ObjectFollowingController()
-    #oc.initialize_inferance()
-    oc.start()
+    oc.publish_loop()

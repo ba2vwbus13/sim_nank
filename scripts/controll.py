@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
+
 import rospy
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
-from jetbot import Robot
+from jetbot import Robot #nedd python3
+#from JetbotDriver import JetbotDriver
 import time
 import threading
 
 class JetbotController:
     def __init__(self):
         self.robot = Robot()
+        #self.robot = JetbotDriver().robot
         self.left_v = 0.0
         self.right_v = 0.0
         self.loop = True

@@ -1,0 +1,8 @@
+<launch>
+
+   <node name="jetbot_camera" pkg="jetbot_ros" type="jetbot_camera" />
+
+   <node name="controll" pkg="sim_nank" type="controll.py"/>
+
+</launch>
+

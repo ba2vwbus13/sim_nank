@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 #iiyama = python2
 #jetbot = python3
@@ -31,31 +31,19 @@ class RoadFollowingController:
         self.steering_bias = rospy.get_param('~steering_bias')
         self.steering_dgain = rospy.get_param('~steering_dgain')
 
-    def start(self):
+    def publish_loop(self):
         rate = rospy.Rate(10)
-        self._publish_loop()
-
-    def _publish_loop(self):
-
         while not rospy.is_shutdown():
             if self.image is None:
                 rospy.logwarn("No Image subscride.")
                 continue
-            #lmotor, rmotor = self._decide_motor_value()
             steering = self._decide_motor_value()
             twist = Twist()
             twist.linear.x = self.speed
             twist.angular.z = -steering
-
-            #forward_hz = 80000.0*message.linear.x/(9*math.pi)
-            #rot_hz = 400.0*message.angular.z/math.pi
-            #self.set_raw_freq(forward_hz-rot_hz, forward_hz+rot_hz)
-            #if coli_deci:
-            #    twist.angular.z = 0.5
-            #else:
-            #    twist.linear.x = 0.5
             rospy.loginfo("linear_x: {}, angular_z: {}".format(twist.linear.x, twist.angular.z))
             self._cmd_vel_pub.publish(twist)
+            rate.sleep()
 
     def _decide_motor_value(self):
         image = self._preprocess()
@@ -68,7 +56,6 @@ class RoadFollowingController:
         steering = pid + self.steering_bias
         left_motor = max(min(self.speed + steering, 1.0), 0.0)
         right_motor = max(min(self.speed - steering, 1.0), 0.0)
-        #return left_motor, right_motor
         return steering
 
     def initialize_inferance(self):
@@ -91,4 +78,4 @@ class RoadFollowingController:
 if __name__ == '__main__':
     rc = RoadFollowingController()
     rc.initialize_inferance()
-    rc.start()
+    rc.publish_loop()

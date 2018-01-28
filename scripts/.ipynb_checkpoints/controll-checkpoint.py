@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
+
 import rospy
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
 from jetbot import Robot
+#from JetbotDriver import JetbotDriver
 import time
 import threading
-import numpy as np
 
 class JetbotController:
     def __init__(self):
         self.robot = Robot()
+        #self.robot = JetbotDriver().robot
         self.left_v = 0.0
         self.right_v = 0.0
         self.loop = True
         self.controll_thread = threading.Thread(target=self._controll_loop)
-        rospy.init_node('jetson_controller')
+        rospy.init_node('jetbot_cmd_vel_controller')
         rospy.Subscriber("/jetbot/cmd_vel", Twist, self._callback)
 
     def start(self):

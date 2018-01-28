@@ -3,12 +3,6 @@
 
    <arg name="following_model" default="ssd"/>
    <arg name="following_model_path" default="$(find sim_nank)/weights/mobilenet-v1-ssd-mp-0_675.pth"/>
-
-<!--
-   <arg name="following_model" default="jetbot"/>
-   <arg name="following_model_path" default="$(find sim_nank)/weights/ssd_mobilenet_v2_coco.engine"/>
--->
-
    <arg name="speed" default="0.5"/>
    <arg name="turn_gain" default="0.2"/>
    <arg name="turn_block" default="0.5"/>
