@@ -1,0 +1,12 @@
+<launch>
+   <arg name="model" default="$(find sim_nank)/weights/best_model_resnet18.pth"/>
+
+   <node name="camera" pkg="image_view" type="image_view">
+      <remap from="/image" to="/jetbot_camera/raw"/>
+   </node>
+
+   <node name="avoidance_controller" pkg="sim_nank" type="avoidance_controller.py" output="screen" >
+      <param name="model" value="$(arg model)"/>
+      <remap from="/jetbot/avoidance/cmd_vel" to="/jetbot/cmd_vel"/>
+   </node>
+</launch>

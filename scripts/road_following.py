@@ -14,7 +14,7 @@ class RoadFollowingController:
 
     def __init__(self):
         rospy.Subscriber('/jetbot_camera/raw', Image, self._image_callback)
-        self._cmd_vel_pub = rospy.Publisher('/jetbot/road_following/cmd_vel', Twist, queue_size=1)
+        self._cmd_vel_pub = rospy.Publisher('/jetbot/cmd_vel', Twist, queue_size=1)
         rospy.init_node('road_following')
         self.model_path = rospy.get_param('~model')
         self.device = torch.device('cuda')
@@ -41,7 +41,7 @@ class RoadFollowingController:
             steering = self._decide_motor_value()
             twist = Twist()
             twist.linear.x = self.speed
-            twist.angular.z = steering
+            twist.angular.z = -steering
 
             #forward_hz = 80000.0*message.linear.x/(9*math.pi)
             #rot_hz = 400.0*message.angular.z/math.pi

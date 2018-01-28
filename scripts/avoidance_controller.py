@@ -14,7 +14,7 @@ class AvoidanceController:
 
     def __init__(self):
         rospy.Subscriber('/jetbot_camera/raw', Image, self._image_callback)
-        self._cmd_vel_pub = rospy.Publisher('/jetbot/avoidance/cmd_vel', Twist, queue_size=1)
+        self._cmd_vel_pub = rospy.Publisher('/jetbot/cmd_vel', Twist, queue_size=1)
         rospy.init_node('avoidance_controller')
         self.model_path = rospy.get_param('~model')
         self.device = torch.device('cuda')

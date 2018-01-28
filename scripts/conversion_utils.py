@@ -1,9 +1,10 @@
 import array
 from io import BytesIO
 import sys
-
 from PIL import Image
 from PIL import ImageOps
+import numpy as np
+
 try:
     import cairo
 except ImportError:
@@ -72,6 +73,17 @@ def imgmsg_to_pil(img_msg, rgba=False):
         return None
 
 
+def pil_to_cv(image):
+    ''' PIL型 -> OpenCV型 '''
+    new_image = np.array(image, dtype=np.uint8)
+    if new_image.ndim == 2:  # モノクロ
+        pass
+    elif new_image.shape[2] == 3:  # カラー
+        new_image = new_image[:, :, ::-1]
+    elif new_image.shape[2] == 4:  # 透過
+        new_image = new_image[:, :, [2, 1, 0, 3]]
+    return new_image
+
 def pil_bgr2rgb(pil_img):
     rgb2bgr = (0, 0, 1, 0,
                0, 1, 0, 0,
@@ -85,3 +97,27 @@ def pil_to_cairo(pil_img):
     data.fromstring(pil_img.tostring())
 
     return cairo.ImageSurface.create_for_data(data, cairo.FORMAT_ARGB32, w, h)
+
+
+def detection_center(detection):
+    """Computes the center x, y coordinates of the object"""
+    bbox = detection['bbox']
+    center_x = (bbox[0] + bbox[2]) / 2.0 - 0.5
+    center_y = (bbox[1] + bbox[3]) / 2.0 - 0.5
+    return (center_x, center_y)
+
+def norm(vec):
+    """Computes the length of the 2D vector"""
+    return np.sqrt(vec[0]**2 + vec[1]**2)
+
+def closest_detection(detections):
+    """Finds the detection closest to the image center"""
+    closest_detection = None
+    for det in detections:
+        center = detection_center(det)
+        if closest_detection is None:
+            closest_detection = det
+        elif norm(detection_center(det)) < norm(detection_center(closest_detection)):
+            closest_detection = det
+    return closest_detection
+
