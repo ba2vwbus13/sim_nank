@@ -3,6 +3,8 @@
   <arg name="rvizconfig" default="$(find sim2_lecture)/rviz/dtw_sensor.rviz" />  
   <param name="robot_description" command="$(find xacro)/xacro $(arg model) --inorder"/>
 
+  <arg name="stick" default="false" />
+
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="paused" value="false"/>
     <arg name="use_sim_time" value="true"/>
@@ -21,4 +23,9 @@
 
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" ns="/dtw_robot"/>
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+  <include file="$(find sim_nank)/launch/jetbot_move.launch" >
+      <arg name="vel_name" value="/dtw_robot/diff_drive_controller/cmd_vel"/>
+      <arg name="stick" value="$(arg stick)"/>
+  </include>
 </launch>

@@ -135,6 +135,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/sim2_lecture_node.cpp)
+add_executable(basic_twist_publisher src/basic_twist_publisher)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -150,6 +151,10 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+target_link_libraries(basic_twist_publisher
+   ${catkin_LIBRARIES}
+)
+
 
 #############
 ## Install ##
