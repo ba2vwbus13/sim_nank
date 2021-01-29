@@ -5,7 +5,8 @@
       <remap from="/image" to="/jetbot_camera/raw"/>
    </node>
 
-   <node name="avoidance_controller" pkg="sim_nank" type="avoidance_controller.py" >
+   <node name="avoidance_controller" pkg="sim_nank" type="avoidance_controller.py" output="screen" >
       <param name="model" value="$(arg model)"/>
+      <remap from="/jetbot/avoidance/cmd_vel" to="/jetbot/cmd_vel"/>
    </node>
 </launch>
