@@ -10,17 +10,22 @@ import rospy
 from PIL import Image as PIL_Image
 from conversion_utils import imgmsg_to_pil
 
-class AvoidanceController:
+class RoadFollowingController:
 
     def __init__(self):
         rospy.Subscriber('/jetbot_camera/raw', Image, self._image_callback)
-        self._cmd_vel_pub = rospy.Publisher('/jetbot/avoidance/cmd_vel', Twist, queue_size=1)
-        rospy.init_node('avoidance_controller')
+        self._cmd_vel_pub = rospy.Publisher('/jetbot/road_following/cmd_vel', Twist, queue_size=1)
+        rospy.init_node('road_following')
         self.model_path = rospy.get_param('~model')
         self.device = torch.device('cuda')
         self.mean = torch.Tensor([0.485, 0.456, 0.406]).to(self.device).half()
         self.stdev = torch.Tensor([0.229, 0.224, 0.225]).to(self.device).half()
         self.image = None
+        self.angle_last = 0.0
+        self.speed = rospy.get_param('~speed')
+        self.steering_gain = rospy.get_param('~steering_gain')
+        self.steering_bias = rospy.get_param('~steering_bias')
+        self.steering_dgain = rospy.get_param('~steering_dgain')
 
     def start(self):
         rate = rospy.Rate(10)
@@ -32,22 +37,35 @@ class AvoidanceController:
             if self.image is None:
                 rospy.logwarn("No Image subscride.")
                 continue
-            coli_deci = self._decide_collision()
+            #lmotor, rmotor = self._decide_motor_value()
+            steering = self._decide_motor_value()
             twist = Twist()
-            if coli_deci:
-                twist.angular.z = 0.5
-            else:
-                twist.linear.x = 0.5
+            twist.linear.x = self.speed
+            twist.angular.z = steering
+
+            #forward_hz = 80000.0*message.linear.x/(9*math.pi)
+            #rot_hz = 400.0*message.angular.z/math.pi
+            #self.set_raw_freq(forward_hz-rot_hz, forward_hz+rot_hz)
+            #if coli_deci:
+            #    twist.angular.z = 0.5
+            #else:
+            #    twist.linear.x = 0.5
             rospy.loginfo("linear_x: {}, angular_z: {}".format(twist.linear.x, twist.angular.z))
             self._cmd_vel_pub.publish(twist)
 
-    def _decide_collision(self):
+    def _decide_motor_value(self):
         image = self._preprocess()
-        y = self.model(image)
-        y = F.softmax(y, dim=1)
-        prob_blocked = float(y.flatten()[0])
-        rospy.loginfo("prob_blocked: {}".format(prob_blocked))
-        return prob_blocked > 0.5
+        xy = self.model(image).detach().float().cpu().numpy().flatten()
+        x = xy[0]
+        y = (0.5-xy[1])/2.0
+        angle = np.arctan2(x,y)
+        pid = angle * self.steering_gain + (angle - self.angle_last) * self.steering_dgain
+        self.angle_last = angle
+        steering = pid + self.steering_bias
+        left_motor = max(min(self.speed + steering, 1.0), 0.0)
+        right_motor = max(min(self.speed - steering, 1.0), 0.0)
+        #return left_motor, right_motor
+        return steering
 
     def initialize_inferance(self):
         model = torchvision.models.resnet18(pretrained=False)
@@ -67,6 +85,6 @@ class AvoidanceController:
         self.image = imgmsg_to_pil(msg)
 
 if __name__ == '__main__':
-    ac = AvoidanceController()
-    ac.initialize_inferance()
-    ac.start()
+    rc = RoadFollowingController()
+    rc.initialize_inferance()
+    rc.start()
