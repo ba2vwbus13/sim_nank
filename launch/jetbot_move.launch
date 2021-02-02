@@ -9,7 +9,7 @@
   </group>
   <group unless="$(arg stick)">
        <node name="joy_node" pkg="joy" type="joy_node"/>
-       <node name="basic_twist_publisher" pkg="sim_nank" type="basic_twist_publisher">
+       <node name="basic_twist_publisher" pkg="sim_nank" type="joy_twist_publisher.py">
           <remap from="/joy/cmd_vel" to="$(arg vel_name)"/>
        </node>
   </group>
