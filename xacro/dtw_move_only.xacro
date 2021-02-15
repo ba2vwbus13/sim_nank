@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot name="dtw_robot" xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:include filename="$(find sim2_lecture)/xacro/move_macro.xacro" />
+  <xacro:include filename="$(find sim_nank)/xacro/move_macro.xacro" />
 
   <link name="base_link"/>
 

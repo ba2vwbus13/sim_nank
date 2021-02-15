@@ -1,30 +1,4 @@
 <launch>
-   <arg name="avoidance_model" default="$(find sim_nank)/weights/best_model_resnet18.pth"/>
-   <arg name="following_model" default="$(find sim_nank)/weights/ssd_mobilenet_v2_coco.engine"/>
-   <arg name="speed" default="0.5"/>
-   <arg name="turn_gain" default="0.5"/>
-   <arg name="turn_block" default="0.5"/>
-   <arg name="target_label" default="1"/>
-   <arg name="display" default="true"/>
-
-   <node name="jetbot_camera" pkg="jetbot_ros" type="jetbot_camera" />
-
-   <!--
-   <node name="camera" pkg="image_view" type="image_view">
-      <remap from="/image" to="/jetbot_camera/raw"/>
-   </node>
-   -->
-
-   <node name="controll" pkg="sim_nank" type="controll.py"/>
-   <node name="object_following" pkg="sim_nank" type="object_following.py" output="screen" >
-      <param name="avoidance_model" value="$(arg avoidance_model)"/>
-      <param name="following_model" value="$(arg following_model)"/>
-      <param name="speed" value="$(arg speed)"/>
-      <param name="turn_gain" value="$(arg turn_gain)"/>
-      <param name="turn_block" value="$(arg turn_block)"/>
-      <param name="target_label" value="$(arg target_label)"/>
-      <param name="display" value="$(arg display)"/>
-   </node>
-
-
+  <include file="$(find sim_nank)/launch/object_following_server.launch" />
+  <include file="$(find sim_nank)/launch/jetbot_client.launch" />
 </launch>

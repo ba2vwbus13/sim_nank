@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import array
 from io import BytesIO
 import sys
@@ -69,18 +70,18 @@ def imgmsg_to_pil(img_msg, rgba=False):
         return pil_img
 
     except Exception as ex:
-        print('Can\'t convert image: %s' % ex, file=sys.stderr)
+        #print('Can\'t convert image: %s' % ex, file=sys.stderr)
+        print('Cant convert image')
         return None
 
 
 def pil_to_cv(image):
-    ''' PIL型 -> OpenCV型 '''
     new_image = np.array(image, dtype=np.uint8)
-    if new_image.ndim == 2:  # モノクロ
+    if new_image.ndim == 2:  #mono cro
         pass
-    elif new_image.shape[2] == 3:  # カラー
+    elif new_image.shape[2] == 3:  #color
         new_image = new_image[:, :, ::-1]
-    elif new_image.shape[2] == 4:  # 透過
+    elif new_image.shape[2] == 4:  #transpalent
         new_image = new_image[:, :, [2, 1, 0, 3]]
     return new_image
 
