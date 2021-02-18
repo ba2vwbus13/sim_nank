@@ -1,13 +1,16 @@
 <launch>
    <arg name="model" default="$(find sim_nank)/weights/best_steering_model_xy.pth"/>
    <arg name="speed" default="0.5"/>
-   <arg name="steering_gain" default="0.5"/>
+   <arg name="steering_gain" default="0.3"/>
    <arg name="steering_bias" default="0.0"/>
-   <arg name="steering_dgain" default="0.3"/>
+   <arg name="steering_dgain" default="0.0"/>
 
-   <node name="camera" pkg="image_view" type="image_view">
-      <remap from="/image" to="/jetbot_camera/raw"/>
+   <node name="image_republish_server" pkg="image_transport" type="republish" args="compressed raw">
+      <remap from="in" to="/jetbot_camera" />
+      <remap from="out" to="/image" />
    </node>
+
+   <node name="camera" pkg="image_view" type="image_view" />
 
    <node name="road_following" pkg="sim_nank" type="road_following.py" output="screen" >
       <param name="model" value="$(arg model)"/>

@@ -1,4 +1,8 @@
 <launch>
-  <include file="$(find sim_nank)/launch/object_following_server.launch" />
+  <include file="$(find sim_nank)/launch/object_following_server.launch" >
+    <arg name="following_model" default="jetbot"/>
+    <arg name="following_model_path" default="$(find sim_nank)/weights/ssd_mobilenet_v2_coco.engine"/>
+  </include>
+
   <include file="$(find sim_nank)/launch/jetbot_client.launch" />
 </launch>

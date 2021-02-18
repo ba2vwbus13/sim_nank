@@ -1,0 +1,11 @@
+<launch>
+
+   <node name="uvc_camera_node" pkg="uvc_camera" type="uvc_camera_node" >
+     <param name="device" type="string" value="/dev/video2"/>
+     <!--<param name="device" type="string" value="/dev/video2"/>-->
+     <remap from="/image_raw" to="jetbot_camera/raw" />
+   </node>
+
+</launch>
+
+

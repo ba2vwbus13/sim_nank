@@ -1,0 +1,8 @@
+<launch>
+
+   <node name="image_republish2" pkg="image_transport" type="republish" args="compressed raw">
+      <remap from="in" to="/jetbot_camera/compressed" />
+      <remap from="out" to="/jetbot_camera2" />
+   </node>
+
+</launch>

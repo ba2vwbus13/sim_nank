@@ -17,7 +17,7 @@ from conversion_utils import imgmsg_to_pil
 class RoadFollowingController:
 
     def __init__(self):
-        rospy.Subscriber('/jetbot_camera/raw', Image, self._image_callback)
+        rospy.Subscriber('/image', Image, self._image_callback)
         self._cmd_vel_pub = rospy.Publisher('/jetbot/cmd_vel', Twist, queue_size=1)
         rospy.init_node('road_following')
         self.model_path = rospy.get_param('~model')
