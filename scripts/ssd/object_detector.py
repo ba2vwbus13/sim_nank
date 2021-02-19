@@ -45,7 +45,7 @@ class ObjectDetector:
             return None
 
         (height, width, channel) = image.shape
-        boxes, labels, probs = self.predictor.predict(image, 10, 0.4)
+        boxes, labels, probs = self.predictor.predict(image, 10, 0.2)
 
         detections = []
         for i in range(boxes.size(0)):
