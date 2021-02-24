@@ -6,7 +6,7 @@
       <remap from="out" to="/image" />
    </node>
 
-   <node name="camera" pkg="image_view" type="image_view" />
+   <!-- <node name="camera" pkg="image_view" type="image_view" /> -->
 
    <node name="avoidance_controller" pkg="sim_nank" type="avoidance_controller.py" output="screen" >
       <param name="model" value="$(arg model)"/>

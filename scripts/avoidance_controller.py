@@ -12,7 +12,8 @@ from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
 import rospy
 from PIL import Image as PIL_Image
-from conversion_utils import imgmsg_to_pil
+from conversion_utils import imgmsg_to_pil, pil_to_cv
+import cv2
 
 class AvoidanceController:
 
@@ -25,25 +26,21 @@ class AvoidanceController:
         self.mean = torch.Tensor([0.485, 0.456, 0.406]).to(self.device).half()
         self.stdev = torch.Tensor([0.229, 0.224, 0.225]).to(self.device).half()
         self.image = None
+        self.cv_image = None
+        self.collision_state = None
 
-    def start(self):
-        rate = rospy.Rate(10)
-        self._publish_loop()
-
-    def _publish_loop(self):
-
-        while not rospy.is_shutdown():
-            if self.image is None:
-                rospy.logwarn("No Image subscride.")
-                continue
-            coli_deci = self._decide_collision()
-            twist = Twist()
-            if coli_deci:
-                twist.angular.z = 0.5
-            else:
-                twist.linear.x = 0.5
-            rospy.loginfo("linear_x: {}, angular_z: {}".format(twist.linear.x, twist.angular.z))
-            self._cmd_vel_pub.publish(twist)
+    def publish_loop(self):
+        if self.image is None:
+            rospy.logwarn("No Image subscride.")
+            return
+        self._decide_collision()
+        twist = Twist()
+        if self.collision_state:
+            twist.angular.z = 0.5
+        else:
+            twist.linear.x = 0.5
+        rospy.loginfo("linear_x: {}, angular_z: {}".format(twist.linear.x, twist.angular.z))
+        self._cmd_vel_pub.publish(twist)
 
     def _decide_collision(self):
         image = self._preprocess()
@@ -51,7 +48,18 @@ class AvoidanceController:
         y = F.softmax(y, dim=1)
         prob_blocked = float(y.flatten()[0])
         rospy.loginfo("prob_blocked: {}".format(prob_blocked))
-        return prob_blocked > 0.5
+        self.collision_state = (prob_blocked > 0.5)
+
+    def mk_image(self):
+        image = self.cv_image.copy()
+        (height, width, channel) = image.shape
+        if self.collision_state:
+            image2 = np.full((width, height, 3), 128, dtype=np.uint8)
+            cv2.rectangle(image2, (0,0), (width, height), (0, 0, 255), thickness=-1)
+            image = cv2.addWeighted(image, 0.5, image2, 0.5, 2.2)
+            cv2.rectangle(image, (0,0), (width, height), (0, 0, 255), thickness=10)
+        image = cv2.resize(image, (int(width*2), int(height*2)))
+        return image
 
     def initialize_inferance(self):
         model = torchvision.models.resnet18(pretrained=False)
@@ -69,8 +77,17 @@ class AvoidanceController:
 
     def _image_callback(self, msg):
         self.image = imgmsg_to_pil(msg)
+        self.cv_image = pil_to_cv(self.image)
 
 if __name__ == '__main__':
     ac = AvoidanceController()
     ac.initialize_inferance()
-    ac.start()
+    rate = rospy.Rate(10)
+    while not rospy.is_shutdown():
+        ac.publish_loop()
+        img = ac.mk_image()
+        cv2.imshow('jet_camera', img)
+        key = cv2.waitKey(10)
+        if key == 27: # ESC 
+            break
+        rate.sleep()

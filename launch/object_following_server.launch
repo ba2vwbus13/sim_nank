@@ -3,12 +3,18 @@
 
    <arg name="following_model" default="ssd"/>
    <arg name="following_model_path" default="$(find sim_nank)/weights/mobilenet-v1-ssd-mp-0_675.pth"/>
+
+   <!--
+   <arg name="following_model" default="yolo"/>
+   <arg name="following_model_path" default="$(find sim_nank)/weights/yolov5m.p"/>
+   -->
+
    <arg name="speed" default="0.5"/>
    <arg name="turn_gain" default="0.2"/>
    <arg name="turn_block" default="0.5"/>
    <arg name="target_label" default="15"/>
    <arg name="display" default="true"/>
-   <arg name="follow_argorithm" default="object_following_ssd.py" />
+   <arg name="follow_argorithm" default="object_following.py" />
 
    <node name="image_republish_server" pkg="image_transport" type="republish" args="compressed raw">
       <remap from="in" to="/jetbot_camera" />

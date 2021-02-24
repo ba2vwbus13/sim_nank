@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 
 #iiyama = python2
 #jetbot = python3
@@ -12,7 +12,8 @@ from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
 import rospy
 from PIL import Image as PIL_Image
-from conversion_utils import imgmsg_to_pil
+from conversion_utils import imgmsg_to_pil, pil_to_cv
+import cv2
 
 class RoadFollowingController:
 
@@ -25,6 +26,7 @@ class RoadFollowingController:
         self.mean = torch.Tensor([0.485, 0.456, 0.406]).to(self.device).half()
         self.stdev = torch.Tensor([0.229, 0.224, 0.225]).to(self.device).half()
         self.image = None
+        self.cv_image = None
         self.angle_last = 0.0
         self.speed = rospy.get_param('~speed')
         self.steering_gain = rospy.get_param('~steering_gain')
@@ -32,24 +34,20 @@ class RoadFollowingController:
         self.steering_dgain = rospy.get_param('~steering_dgain')
 
     def publish_loop(self):
-        rate = rospy.Rate(10)
-        while not rospy.is_shutdown():
-            if self.image is None:
-                rospy.logwarn("No Image subscride.")
-                continue
-            steering = self._decide_motor_value()
-            twist = Twist()
-            twist.linear.x = self.speed
-            twist.angular.z = -steering
-            rospy.loginfo("linear_x: {}, angular_z: {}".format(twist.linear.x, twist.angular.z))
-            self._cmd_vel_pub.publish(twist)
-            rate.sleep()
+        if self.image is None:
+            rospy.logwarn("No Image subscride.")
+        steering = self._decide_motor_value()
+        twist = Twist()
+        twist.linear.x = self.speed
+        twist.angular.z = -steering
+        rospy.loginfo("linear_x: {}, angular_z: {}".format(twist.linear.x, twist.angular.z))
+        self._cmd_vel_pub.publish(twist)
 
     def _decide_motor_value(self):
         image = self._preprocess()
-        xy = self.model(image).detach().float().cpu().numpy().flatten()
-        x = xy[0]
-        y = (0.5-xy[1])/2.0
+        self.xy = self.model(image).detach().float().cpu().numpy().flatten()
+        x = self.xy[0]
+        y = (0.5 - self.xy[1]) / 2.0
         angle = np.arctan2(x,y)
         pid = angle * self.steering_gain + (angle - self.angle_last) * self.steering_dgain
         self.angle_last = angle
@@ -57,6 +55,16 @@ class RoadFollowingController:
         left_motor = max(min(self.speed + steering, 1.0), 0.0)
         right_motor = max(min(self.speed - steering, 1.0), 0.0)
         return steering
+
+    def mk_image(self):
+        image = self.cv_image.copy()
+        (height, width, channel) = image.shape
+        x = int(width/2*(1+self.xy[0]))
+        y = int(height/2*(1+self.xy[1]))
+        print("x:{} y:{}".format(x,y))
+        cv2.arrowedLine(image, (int(width/2),int(height/2)), (x,y), (255,255,255), thickness=3)
+        image = cv2.resize(image, (int(width*2), int(height*2)))
+        return image
 
     def initialize_inferance(self):
         model = torchvision.models.resnet18(pretrained=False)
@@ -74,8 +82,17 @@ class RoadFollowingController:
 
     def _image_callback(self, msg):
         self.image = imgmsg_to_pil(msg)
+        self.cv_image = pil_to_cv(self.image)
 
 if __name__ == '__main__':
     rc = RoadFollowingController()
     rc.initialize_inferance()
-    rc.publish_loop()
+    rate = rospy.Rate(10)
+    while not rospy.is_shutdown():
+        rc.publish_loop()
+        img = rc.mk_image()
+        cv2.imshow('jet_camera', img)
+        key = cv2.waitKey(10)
+        if key == 27: # ESC 
+            break
+        rate.sleep()
