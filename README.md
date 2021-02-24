@@ -2,7 +2,8 @@
  
 weightsフォルダを作成して以下のファイルを格納する
 
-https://drive.google.com/drive/folders/1OQqN2wx-pSPBJm7VdvArIO59_arPgRoI?usp=sharingbest_model_resnet18.pth
+https://drive.google.com/drive/folders/1OQqN2wx-pSPBJm7VdvArIO59_arPgRoI?usp=sharing
+
 
 # DEMO1(jetbot単体）
  
