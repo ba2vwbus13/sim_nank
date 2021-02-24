@@ -2,16 +2,8 @@
  
 weightsフォルダを作成して以下のファイルを格納する
 
-best_model_resnet18.pth
+https://drive.google.com/drive/folders/1OQqN2wx-pSPBJm7VdvArIO59_arPgRoI?usp=sharingbest_model_resnet18.pth
 
-best_steering_model_xy.pth
-
-mobilenet-v1-ssd-mp-0_675.pth
-
-voc-model-labels.txt
-
-ssd_mobilenet_v2_coco.engine
- 
 # DEMO1(jetbot単体）
  
 ```
