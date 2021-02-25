@@ -1,0 +1,11 @@
+<launch>
+
+  <arg name="stick" default="false" />
+  <arg name="vel_name" default="/jetbot/cmd_vel" />
+  <include file="$(find sim_nank)/launch/jetbot_move.launch" >
+      <arg name="vel_name" value="$(arg vel_name)"/>
+      <arg name="stick" value="$(arg stick)"/>
+  </include>
+
+</launch>
+

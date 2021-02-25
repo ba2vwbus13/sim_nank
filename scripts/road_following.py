@@ -62,7 +62,7 @@ class RoadFollowingController:
         x = int(width/2*(1+self.xy[0]))
         y = int(height/2*(1+self.xy[1]))
         print("x:{} y:{}".format(x,y))
-        cv2.arrowedLine(image, (int(width/2),int(height/2)), (x,y), (255,255,255), thickness=3)
+        cv2.arrowedLine(image, (int(width/2),int(height/2)), (x,y), (255,255,255), 2, tipLength=0.5)
         image = cv2.resize(image, (int(width*2), int(height*2)))
         return image
 
