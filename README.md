@@ -8,7 +8,7 @@ https://drive.google.com/drive/folders/1OQqN2wx-pSPBJm7VdvArIO59_arPgRoI?usp=sha
 # DEMO1(jetbot単体）
  
 ```
-roslaunch sim_nank jetbot_controll.launch
+roslaunch sim_nank jetbot_controller.launch
 roslaunch sim_nank avoidance.launch
 roslaunch sim_nank road_following.launch
 roslaunch sim_nank object_following.launch
@@ -37,3 +37,33 @@ roslaunch sim_nank object_following_server.launch
 roslaunch sim_nank sim_move.launch
 ```
 
+# DEMO4(jetbot and server）
+
+jetbot
+
+```
+rosrun sim_nank controller.py
+```
+
+server
+
+```
+roslaunch sim_nank jetbot_controller.launch
+```
+
+
+# DEMO5(whill and server）
+
+whill
+
+
+```
+roslaunch ros_whill ros_whill.launch
+```
+
+
+server
+
+```
+roslaunch sim_nank whill_controller.launch
+```
