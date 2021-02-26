@@ -21,18 +21,35 @@ class ObjectFollowingController:
         rospy.init_node('object_following')
         rospy.Subscriber('/image', Image, self._image_callback)
         self._cmd_vel_pub = rospy.Publisher('/jetbot/cmd_vel', Twist, queue_size=1)
+        if rospy.has_param('avoidance_model'):
+            avoidance_model_path = rospy.get_param('avoidance_model')
+            following_model_path = rospy.get_param('following_model_path')
+            self.following_model = rospy.get_param('following_model')            
+            self.speed = rospy.get_param('speed')
+            self.turn_block = rospy.get_param('turn_block')
+            self.turn_gain = rospy.get_param('turn_gain')
+            self.target_label = rospy.get_param('target_label')
+            self.display = rospy.get_param('display')
+        else:
+            avoidance_model_path = "/home/nakahira/catkin_ws/src/sim_nank/weights/best_model_resnet18.pth"
+            following_model_path = '/home/nakahira/catkin_ws/src/sim_nank/weights/yolov5m.pt'
+            self.following_model = 'yolo'        
+            self.speed = 0.7
+            self.turn_block = 0.5
+            self.turn_gain = 1.0
+            self.target_label = 0
+            self.display = True
+
         self.device = torch.device('cuda')
         self.pil_image = None
         self.cv_image = None
         self.collision_model = None
         self.detection_model = None
-        avoidance_model_path = rospy.get_param('avoidance_model')
-        following_model_path = rospy.get_param('~following_model_path')
-        self.following_model = rospy.get_param('~following_model')
+
         if self.following_model == 'ssd':
             from ssd import ObjectDetector
         elif self.following_model == 'yolo':
-            from yolov5 import ObjectDetector
+            from ObjectDetector import ObjectDetector
         else:
             from jetbot import ObjectDetector
         self.detection_model = ObjectDetector(following_model_path)       
@@ -41,11 +58,6 @@ class ObjectFollowingController:
         collision_model.load_state_dict(torch.load(avoidance_model_path))
         collision_model = collision_model.to(self.device)
         self.collision_model = collision_model.eval().half()
-        self.speed = rospy.get_param('~speed')
-        self.turn_block = rospy.get_param('~turn_block')
-        self.turn_gain = rospy.get_param('~turn_gain')
-        self.target_label = rospy.get_param('~target_label')
-        self.display = rospy.get_param('~display')
         self.detections = None
         self.matching_detections = None
         self.collision_state = True
@@ -80,7 +92,7 @@ class ObjectFollowingController:
             image = cv2.addWeighted(image, 0.5, image2, 0.5, 2.2)
             cv2.rectangle(image, (0,0), (width, height), (0, 0, 255), thickness=10)
 
-        print('dets :{}'.format(self.detections))
+        #print('dets :{}'.format(self.detections))
         for det in self.detections:
             bbox = det['bbox']
 
@@ -108,7 +120,10 @@ class ObjectFollowingController:
         return rdets
 
     def _decide_motor_value(self):
-        self.collision_state = self._decide_blocked() > 0.3
+        
+        prob = self._decide_blocked()
+        self.collision_state = prob > 0.3
+
         self.target_detection = self._object_detection()
 
         # otherwise go forward if no target detected
@@ -125,7 +140,7 @@ class ObjectFollowingController:
             forward = self.speed
             angle = self.turn_gain * center[0]
 
-        rospy.loginfo("blocked: {},  det:{}".format(self.collision_state, self.target_detection))
+        rospy.loginfo("blocked: {},  det:{}".format(prob, self.target_detection))
 
         return forward, angle
 

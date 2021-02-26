@@ -47,8 +47,8 @@ class ObjectDetector:
             'label_name': f'{self.names[int(cls)]}', 'prob' : conf}
             detections.append(list)
 
-        print('detections :{}'.format(detections))
-        return detections
+        #print('detections :{}'.format(detections))
+        return [detections]
 
     def predict(self, img0):
         if img0 is None:
@@ -87,6 +87,7 @@ class ObjectDetector:
                 label = f'{self.names[int(cls)]} {conf:.2f}'
                 plot_one_box(xyxy, im0, label=label, color=self.colors[int(cls)], line_thickness=3)
         return im0
+
 
 if __name__ == '__main__':
 
