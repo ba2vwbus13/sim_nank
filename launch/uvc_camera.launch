@@ -1,0 +1,15 @@
+<launch>
+
+   <node name="uvc_camera_node" pkg="uvc_camera" type="uvc_camera_node" >
+     <param name="device" type="string" value="/dev/video0"/>
+     <!--<param name="device" type="string" value="/dev/video2"/>-->
+     <remap from="/image_raw" to="jetbot_camera/raw" />
+   </node>
+
+   <include file="$(find sim_nank)/launch/jetbot_image_republish.launch" >
+      <arg name="compress" value="true"/>
+   </include>
+
+</launch>
+
+

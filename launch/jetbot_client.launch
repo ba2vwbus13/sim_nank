@@ -1,0 +1,11 @@
+<launch>
+
+   <node name="jetbot_camera" pkg="jetbot_ros" type="jetbot_camera" />
+
+   <include file="$(find sim_nank)/launch/jetbot_image_republish.launch" >
+      <arg name="compress" value="true"/>
+   </include>
+
+   <node name="controll" pkg="sim_nank" type="controll.py"/>
+
+</launch>

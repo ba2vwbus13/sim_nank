@@ -1,0 +1,45 @@
+<launch>
+   <arg name="avoidance_model" default="$(find sim_nank)/weights/best_model_resnet18.pth"/>
+
+<!--
+   <arg name="following_model" default="ssd"/>
+   <arg name="following_model_path" default="$(find sim_nank)/weights/mobilenet-v1-ssd-mp-0_675.pth"/>
+-->
+   
+   <arg name="following_model" default="yolo"/>
+   <arg name="following_model_path" default="$(find sim_nank)/weights/yolov5m.pt"/>
+   
+
+   <arg name="speed" default="0.7"/>
+   <arg name="turn_gain" default="1.0"/>
+   <arg name="turn_block" default="0.5"/>
+   <arg name="target_label" default="39"/>
+   <arg name="display_flip" default="false"/>
+   <arg name="follow_argorithm" default="object_following_yolo.py" />
+
+   <include file="$(find sim_nank)/launch/jetbot_image_republish.launch" >
+      <arg name="decompress" value="true"/>
+      <arg name="compress" value="false"/>
+   </include>
+
+   <!--<node name="camera" pkg="image_view" type="image_view" /> -->
+
+   <param name="avoidance_model" value="$(arg avoidance_model)"/>
+   <param name="following_model" value="$(arg following_model)"/>
+   <param name="following_model_path" value="$(arg following_model_path)"/> 
+   <param name="speed" value="$(arg speed)"/>
+   <param name="turn_gain" value="$(arg turn_gain)"/>
+   <param name="turn_block" value="$(arg turn_block)"/>
+   <param name="target_label" value="$(arg target_label)"/>
+   <param name="display_flip" value="$(arg display_flip)"/>
+
+   <!-- roslaunch を用いないで実行する -->
+   <!-- source .bashrc_conda_ros_-->
+   <!-- cd yolov5,  conda activate yolov5,   python object_following_yolo.py-->
+
+   <!-- これは動かなかった -->
+   <!--
+   <node name="object_following" pkg="sim_nank" type="$(arg follow_argorithm)" output="screen" />
+   -->
+
+</launch>

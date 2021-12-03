@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find sim_nank)/launch/avoidance_server.launch" />
+  <include file="$(find sim_nank)/launch/jetbot_client.launch" />
+</launch>

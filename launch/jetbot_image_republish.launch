@@ -1,0 +1,20 @@
+<launch>
+
+  <arg name="compress" default="true" />
+  <arg name="decompress" default="false" />
+
+  <group if="$(arg compress)">
+    <node name="image_republish_send" pkg="image_transport" type="republish" args="raw compressed">
+        <remap from="in" to="/jetbot_camera/raw" />
+        <remap from="out" to="/jetbot_camera" />
+    </node>
+  </group>
+
+  <group if="$(arg decompress)">
+    <node name="image_republish_receive" pkg="image_transport" type="republish" args="compressed raw">
+        <remap from="in" to="/jetbot_camera" />
+        <remap from="out" to="/image" />
+    </node>
+  </group>
+
+</launch>

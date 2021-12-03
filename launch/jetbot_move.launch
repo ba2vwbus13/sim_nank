@@ -1,0 +1,16 @@
+<launch>
+  <arg name="stick" default="false" />
+  <arg name="vel_name" default="/jetbot/cmd_vel"/>
+  <group if="$(arg stick)">
+       <node name="imu_node" pkg="rt_usb_9axisimu_driver" type="rt_usb_9axisimu_driver"/>
+       <node name="stick_publisher" pkg="sim_nank" type="stick_publisher.py" output="screen">
+          <remap from="/stick/cmd_vel" to="$(arg vel_name)"/>
+       </node>
+  </group>
+  <group unless="$(arg stick)">
+       <node name="joy_node" pkg="joy" type="joy_node"/>
+       <node name="basic_twist_publisher" pkg="sim_nank" type="joy_twist_publisher.py">
+          <remap from="/joy/cmd_vel" to="$(arg vel_name)"/>
+       </node>
+  </group>
+</launch>

@@ -1,0 +1,13 @@
+<launch>
+   <arg name="model" default="$(find sim_nank)/weights/best_model_resnet18.pth"/>
+
+   <node name="image_republish_server" pkg="image_transport" type="republish" args="compressed raw">
+      <remap from="in" to="/jetbot_camera" />
+      <remap from="out" to="/image" />
+   </node>
+
+   <node name="avoidance_controller" pkg="sim_nank" type="avoidance_controller.py" output="screen" >
+      <param name="model" value="$(arg model)"/>
+   </node>
+
+</launch>

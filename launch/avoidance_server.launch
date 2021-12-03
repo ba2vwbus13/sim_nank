@@ -1,0 +1,25 @@
+<launch>
+   <!--<arg name="model" default="$(find sim_nank)/weights/best_model_resnet18.pth"/>-->
+   <arg name="model" default="$(find sim_nank)/weights/best_steering_model_xy.pth"/>
+   
+   <arg name="display_flip" default="true"/>
+   <!--
+   <node name="image_republish_server" pkg="image_transport" type="republish" args="compressed raw">
+      <remap from="in" to="/jetbot_camera" />
+      <remap from="out" to="/image" />
+   </node>
+   -->
+   
+   <include file="$(find sim_nank)/launch/jetbot_image_republish.launch" >
+      <arg name="decompress" value="true"/>
+      <arg name="compress" value="false"/>
+   </include>
+
+   <!-- <node name="camera" pkg="image_view" type="image_view" /> -->
+
+   <node name="avoidance_controller" pkg="sim_nank" type="avoidance_controller.py" output="screen" >
+      <param name="model" value="$(arg model)"/>
+      <param name="display_flip" value="$(arg display_flip)"/>
+   </node>
+
+</launch>
