@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 #iiyama = python2
 #jetbot = python3
@@ -38,9 +38,9 @@ class AvoidanceController:
         self._decide_collision()
         twist = Twist()
         if self.collision_state:
-            twist.angular.z = 0.5
+            twist.angular.z = 1
         else:
-            twist.linear.x = 0.3
+            twist.linear.x = 0.8
         rospy.loginfo("linear_x: {}, angular_z: {}".format(twist.linear.x, twist.angular.z))
         self._cmd_vel_pub.publish(twist)
 

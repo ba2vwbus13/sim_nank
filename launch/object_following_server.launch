@@ -17,11 +17,18 @@
    <arg name="display_flip" default="false"/>
    <arg name="follow_argorithm" default="object_following_yolo.py" />
 
+
    <include file="$(find sim_nank)/launch/jetbot_image_republish.launch" >
       <arg name="decompress" value="true"/>
       <arg name="compress" value="false"/>
    </include>
 
+   <!-- carry out only server with usb camera -->
+   <!--
+    <node name="usb_cam" pkg="usb_cam" type="usb_cam_node">
+        <remap from="/usb_cam/image_raw" to="image"/>
+    </node>
+   -->
    <!--<node name="camera" pkg="image_view" type="image_view" /> -->
 
    <param name="avoidance_model" value="$(arg avoidance_model)"/>

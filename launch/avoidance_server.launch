@@ -1,8 +1,8 @@
 <launch>
-   <!--<arg name="model" default="$(find sim_nank)/weights/best_model_resnet18.pth"/>-->
-   <arg name="model" default="$(find sim_nank)/weights/best_steering_model_xy.pth"/>
+   <arg name="model" default="$(find sim_nank)/weights/best_model_resnet18.pth"/>
+   <!--<arg name="model" default="$(find sim_nank)/weights/best_steering_model_xy.pth"/>-->
    
-   <arg name="display_flip" default="true"/>
+   <arg name="display_flip" default="false"/>
    <!--
    <node name="image_republish_server" pkg="image_transport" type="republish" args="compressed raw">
       <remap from="in" to="/jetbot_camera" />

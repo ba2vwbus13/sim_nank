@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 #iiyama = python2
 #jetbot = python3
@@ -13,12 +13,11 @@ from geometry_msgs.msg import Twist
 import rospy
 from PIL import ImageOps
 from PIL import Image as PIL_Image
-from conversion_utils import imgmsg_to_pil, pil_to_cv, closest_detection, detection_center, bbox_to_rbbox, bbox_to_roi, roi_to_bbox
-from utils.plots import plot_one_box
+from conversion_utils import (imgmsg_to_pil, pil_to_cv, closest_detection, detection_center, 
+bbox_to_rbbox, bbox_to_roi, roi_to_bbox, plot_one_box)
 import cv2
 
 class ObjectFollowingController:
-
     def __init__(self):
         rospy.init_node('object_following')
         rospy.Subscriber('/image', Image, self._image_callback)
@@ -78,10 +77,8 @@ class ObjectFollowingController:
         detections = self.detection_model(image) # draw all detections on image        
         self.detections = detections[0]
         self.detections = self._reject_small(self.detections)
-
         # select detections that match selected class label
         matching_detections = [d for d in self.detections if d['label'] == self.target_label]
-
         return closest_detection(matching_detections)
 
     def mk_image(self):
@@ -94,19 +91,19 @@ class ObjectFollowingController:
             image = cv2.addWeighted(image, 0.5, image2, 0.5, 2.2)
             cv2.rectangle(image, (0,0), (width, height), (0, 0, 255), thickness=10)
 
-        #print('dets :{}'.format(self.detections))
         for det in self.detections:
             plot_one_box(det['bbox'], image, label=det['label_name'], color=det['color'], line_thickness=3)
-            #cv2.rectangle(image, det['bbox'], (255, 0, 0), 2)
+            #x = det['bbox']
+            #c1, c2 = (int(x[0]), int(x[1])), (int(x[2]), int(x[3]))
+            #cv2.rectangle(image, c1, c2 , (255, 0, 0), 2)
     
         if self.target_detection is not None:
             if self.is_tracking:
-                cv2.rectangle(image, self.target_detection['bbox'], (0, 255, 0), 5)
+                plot_one_box(self.target_detection['bbox'], image, color=(0, 255, 0), line_thickness=3)
             else:
-                cv2.rectangle(image, self.target_detection['bbox'], (255, 255, 255), 10)
+                plot_one_box(self.target_detection['bbox'], image, color=(255, 255, 255), line_thickness=3)
 
-        image = cv2.resize(image, (int(width*2), int(height*2)))
-        return image
+        return cv2.resize(image, (int(width*2), int(height*2)))
         
     #small objects are rejected by k. nakahira
     def _reject_small(self, dets):
@@ -117,7 +114,7 @@ class ObjectFollowingController:
                 rdets.append(det)
         return rdets
 
-    def update_target_detection(self):
+    def update_target_detection_with_tracking(self):
         if self.frame_id % 1 == 0 or not self.is_tracking:
             self.is_tracking = None
             self.target_detection = self._object_detection()
@@ -129,6 +126,12 @@ class ObjectFollowingController:
         if self.target_detection is not None:
             self.is_tracking, roi = self.tracker.update(self.cv_image)
             self.target_detection['bbox'] = roi_to_bbox(roi)
+            self.target_detection['rbbox'] = bbox_to_rbbox(self.target_detection['bbox'], self.cv_image)
+
+    def update_target_detection(self):
+        self.target_detection = self._object_detection()
+        print('target detections :{}'.format(self.target_detection)) 
+        if self.target_detection is not None:
             self.target_detection['rbbox'] = bbox_to_rbbox(self.target_detection['bbox'], self.cv_image)
 
     def _decide_motor_value(self):
@@ -152,7 +155,6 @@ class ObjectFollowingController:
             angle = self.turn_gain * center[0]
 
         rospy.loginfo("blocked: {},  det:{}".format(prob, self.target_detection))
-
         return forward, angle
 
     def publish_loop(self):
@@ -173,10 +175,10 @@ class ObjectFollowingController:
 
     def _image_callback(self, msg):
         self.pil_image = imgmsg_to_pil(msg)
-        if self.display_flip:
+        if hasattr(self, 'display_flip') and self.display_flip:
             self.pil_image = ImageOps.flip(self.pil_image)
+            self.pil_image = ImageOps.mirror(self.pil_image)
         self.cv_image = cv2.resize(pil_to_cv(self.pil_image), dsize=(300,300))
-
 
 if __name__ == '__main__':
     oc = ObjectFollowingController()
