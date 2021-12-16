@@ -5,11 +5,21 @@
    <arg name="steering_bias" default="0.0"/>
    <arg name="steering_dgain" default="0.0"/>
    <arg name="display_flip" default="true"/>
+   <arg name="usb_camera" default="false" />
 
    <node name="image_republish_server" pkg="image_transport" type="republish" args="compressed raw">
       <remap from="in" to="/jetbot_camera" />
       <remap from="out" to="/image" />
    </node>
+
+   <!-- carry out only server with usb camera -->
+   <group if="$(arg usb_camera)">
+      <node name="usb_cam" pkg="uvc_camera" type="uvc_camera_node">
+         <remap from="/image_raw" to="/image"/>
+      </node>
+   </group>
+
+   <!--<node name="camera" pkg="image_view" type="image_view" /> -->
 
    <node name="road_following" pkg="sim_nank" type="road_following.py" output="screen" >
       <param name="model" value="$(arg model)"/>

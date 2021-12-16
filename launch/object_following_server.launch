@@ -1,34 +1,31 @@
 <launch>
    <arg name="avoidance_model" default="$(find sim_nank)/weights/best_model_resnet18.pth"/>
-
 <!--
    <arg name="following_model" default="ssd"/>
    <arg name="following_model_path" default="$(find sim_nank)/weights/mobilenet-v1-ssd-mp-0_675.pth"/>
--->
-   
+--> 
    <arg name="following_model" default="yolo"/>
    <arg name="following_model_path" default="$(find sim_nank)/weights/yolov5m.pt"/>
-   
-
    <arg name="speed" default="0.7"/>
    <arg name="turn_gain" default="1.0"/>
    <arg name="turn_block" default="0.5"/>
    <arg name="target_label" default="39"/>
    <arg name="display_flip" default="false"/>
-   <arg name="follow_argorithm" default="object_following_yolo.py" />
+   <arg name="follow_argorithm" default="pontos.py" />
+   <arg name="usb_camera" default="false" />
 
-
-   <include file="$(find sim_nank)/launch/jetbot_image_republish.launch" >
-      <arg name="decompress" value="true"/>
-      <arg name="compress" value="false"/>
-   </include>
+   <node name="image_republish_server" pkg="image_transport" type="republish" args="compressed raw">
+      <remap from="in" to="/jetbot_camera" />
+      <remap from="out" to="/image" />
+   </node>
 
    <!-- carry out only server with usb camera -->
-   <!--
-    <node name="usb_cam" pkg="usb_cam" type="usb_cam_node">
-        <remap from="/usb_cam/image_raw" to="image"/>
-    </node>
-   -->
+   <group if="$(arg usb_camera)">
+      <node name="usb_cam" pkg="uvc_camera" type="uvc_camera_node">
+         <remap from="/image_raw" to="/image"/>
+      </node>
+   </group>
+
    <!--<node name="camera" pkg="image_view" type="image_view" /> -->
 
    <param name="avoidance_model" value="$(arg avoidance_model)"/>
@@ -40,13 +37,11 @@
    <param name="target_label" value="$(arg target_label)"/>
    <param name="display_flip" value="$(arg display_flip)"/>
 
-   <!-- roslaunch を用いないで実行する -->
+   <!-- iiyama roslaunch を用いないで実行する -->
    <!-- source .bashrc_conda_ros_-->
    <!-- cd yolov5,  conda activate yolov5,   python object_following_yolo.py-->
-
    <!-- これは動かなかった -->
-   <!--
    <node name="object_following" pkg="sim_nank" type="$(arg follow_argorithm)" output="screen" />
-   -->
+   
 
 </launch>
