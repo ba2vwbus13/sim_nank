@@ -61,10 +61,9 @@ class RoadFollowingController:
     def mk_image(self):
         image = self.cv_image.copy()
         (height, width, channel) = image.shape
-        print("x:{} y:{}".format(self.xy[0], self.xy[1]))
+        #print("x:{} y:{}".format(self.xy[0], self.xy[1]))
         x = int(width/2*(1+self.xy[0]))
         y = int(height/2*(1+self.xy[1]))
-        print("x:{} y:{}".format(x,y))
         cv2.arrowedLine(image, (int(width/2),int(height/2)), (x,y), (255,255,255), 2, tipLength=0.5)
         image = cv2.resize(image, (int(width), int(height)))
         return image
@@ -86,7 +85,6 @@ class RoadFollowingController:
     def _image_callback(self, msg):
         self.pil_image = imgmsg_to_pil(msg)
         self.pil_image = self.pil_image.resize((224, 224))
-        print(self.pil_image.size)
         if self.display_flip:
             self.pil_image = ImageOps.flip(self.pil_image)
             self.pil_image = ImageOps.mirror(self.pil_image)

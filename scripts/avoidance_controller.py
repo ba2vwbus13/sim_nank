@@ -38,9 +38,13 @@ class AvoidanceController:
         self._decide_collision()
         twist = Twist()
         if self.collision_state:
-            twist.angular.z = 0.5
+            twist.angular.z = 1
         else:
+<<<<<<< HEAD
             twist.linear.x = 0.5
+=======
+            twist.linear.x = 0.8
+>>>>>>> c4eff6039f8d075990788364298ca6a54b028eee
         rospy.loginfo("linear_x: {}, angular_z: {}".format(twist.linear.x, twist.angular.z))
         self._cmd_vel_pub.publish(twist)
 

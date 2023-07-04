@@ -1,8 +1,11 @@
 <launch>
-   <!--<arg name="model" default="$(find sim_nank)/weights/best_model_resnet18.pth"/>-->
-   <arg name="model" default="$(find sim_nank)/weights/best_steering_model_xy.pth"/>
+   <arg name="model" default="$(find sim_nank)/weights/best_model_resnet18.pth"/>
+   <!--<arg name="model" default="$(find sim_nank)/weights/best_steering_model_xy.pth"/>-->
    
+<<<<<<< HEAD
    <!-- <arg name="display_flip" default="true"/> -->
+=======
+>>>>>>> c4eff6039f8d075990788364298ca6a54b028eee
    <arg name="display_flip" default="false"/>
    <!--
    <node name="image_republish_server" pkg="image_transport" type="republish" args="compressed raw">

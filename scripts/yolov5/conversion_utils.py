@@ -5,6 +5,7 @@ import sys
 from PIL import Image
 from PIL import ImageOps
 import numpy as np
+import cv2
 
 try:
     import cairo
@@ -99,8 +100,10 @@ def pil_to_cairo(pil_img):
 
     return cairo.ImageSurface.create_for_data(data, cairo.FORMAT_ARGB32, w, h)
 
-def detection_center(det):
-    bbox = det['rbbox']
+
+def detection_center(detection):
+    """Computes the center x, y coordinates of the object"""
+    bbox = detection['bbox']
     center_x = (bbox[0] + bbox[2]) / 2.0 - 0.5
     center_y = (bbox[1] + bbox[3]) / 2.0 - 0.5
     return (center_x, center_y)
@@ -133,3 +136,16 @@ def bbox_to_roi(bbox):
 
 def roi_to_bbox(roi):
     return (roi[0], roi[1], roi[0]+roi[2], roi[1]+roi[3])
+
+def plot_one_box(x, img, color=None, label=None, line_thickness=3):
+    # Plots one bounding box on image img
+    tl = line_thickness or round(0.002 * (img.shape[0] + img.shape[1]) / 2) + 1  # line/font thickness
+    color = color or [random.randint(0, 255) for _ in range(3)]
+    c1, c2 = (int(x[0]), int(x[1])), (int(x[2]), int(x[3]))
+    cv2.rectangle(img, c1, c2, color, thickness=tl, lineType=cv2.LINE_AA)
+    if label:
+        tf = max(tl - 1, 1)  # font thickness
+        t_size = cv2.getTextSize(label, 0, fontScale=tl / 3, thickness=tf)[0]
+        c2 = c1[0] + t_size[0], c1[1] - t_size[1] - 3
+        cv2.rectangle(img, c1, c2, color, -1, cv2.LINE_AA)  # filled
+        cv2.putText(img, label, (c1[0], c1[1] - 2), 0, tl / 3, [225, 255, 255], thickness=tf, lineType=cv2.LINE_AA)
