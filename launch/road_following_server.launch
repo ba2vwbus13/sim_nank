@@ -4,7 +4,7 @@
    <arg name="steering_gain" default="0.2"/>
    <arg name="steering_bias" default="0.0"/>
    <arg name="steering_dgain" default="0.0"/>
-   <arg name="display_flip" default="true"/>
+   <arg name="display_flip" default="false"/>
 
    <node name="image_republish_server" pkg="image_transport" type="republish" args="compressed raw">
       <remap from="in" to="/jetbot_camera" />

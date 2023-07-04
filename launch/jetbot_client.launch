@@ -2,10 +2,13 @@
 
    <node name="jetbot_camera" pkg="jetbot_ros" type="jetbot_camera" />
 
-   <include file="$(find sim_nank)/launch/jetbot_image_republish.launch" >
-      <arg name="compress" value="true"/>
-   </include>
+   <node name="image_republish" pkg="image_transport" type="republish" args="raw compressed">
+      <remap from="in" to="/jetbot_camera/raw" />
+      <remap from="out" to="/jetbot_camera" />
+   </node>
 
    <node name="controll" pkg="sim_nank" type="controll.py"/>
 
 </launch>
+
+

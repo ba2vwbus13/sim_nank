@@ -99,10 +99,8 @@ def pil_to_cairo(pil_img):
 
     return cairo.ImageSurface.create_for_data(data, cairo.FORMAT_ARGB32, w, h)
 
-
-def detection_center(detection):
-    """Computes the center x, y coordinates of the object"""
-    bbox = detection['bbox']
+def detection_center(det):
+    bbox = det['rbbox']
     center_x = (bbox[0] + bbox[2]) / 2.0 - 0.5
     center_y = (bbox[1] + bbox[3]) / 2.0 - 0.5
     return (center_x, center_y)
@@ -122,3 +120,16 @@ def closest_detection(detections):
             closest_detection = det
     return closest_detection
 
+def rbox_to_box(bbox, image):
+    (height, width, channel) = image.shape
+    return (int(width * bbox[0]), int(height * bbox[1])), (int(width * bbox[2]), int(height * bbox[3]))
+
+def bbox_to_rbbox(bbox, image):
+    (height, width, channel) = image.shape
+    return (bbox[0]/width, bbox[1]/height, bbox[2]/width, bbox[3]/height)
+
+def bbox_to_roi(bbox):
+    return (bbox[0], bbox[1], bbox[2]-bbox[0], bbox[3]-bbox[1])
+
+def roi_to_bbox(roi):
+    return (roi[0], roi[1], roi[0]+roi[2], roi[1]+roi[3])

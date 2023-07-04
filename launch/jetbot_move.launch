@@ -1,6 +1,7 @@
 <launch>
   <arg name="stick" default="false" />
-  <arg name="vel_name" default="/jetbot/cmd_vel"/>
+  <arg name="vel_name" default="/cmd_vel"/>
+  <!--<arg name="vel_name" default="/jetbot/cmd_vel"/> -->
   <group if="$(arg stick)">
        <node name="imu_node" pkg="rt_usb_9axisimu_driver" type="rt_usb_9axisimu_driver"/>
        <node name="stick_publisher" pkg="sim_nank" type="stick_publisher.py" output="screen">

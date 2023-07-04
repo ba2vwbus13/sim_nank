@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 #iiyama = python2
 #jetbot = python3
@@ -50,8 +50,7 @@ class RoadFollowingController:
         self.xy = self.model(image).detach().float().cpu().numpy().flatten()
         x = self.xy[0]
         y = (0.5 - self.xy[1]) / 2.0
-        #angle = -1*np.arctan2(x,y)
-        angle = np.arctan2(y,x)
+        angle = np.arctan2(x,y)
         pid = angle * self.steering_gain + (angle - self.angle_last) * self.steering_dgain
         self.angle_last = angle
         steering = pid + self.steering_bias
@@ -90,6 +89,7 @@ class RoadFollowingController:
         print(self.pil_image.size)
         if self.display_flip:
             self.pil_image = ImageOps.flip(self.pil_image)
+            self.pil_image = ImageOps.mirror(self.pil_image)
         self.cv_image = pil_to_cv(self.pil_image)
 
 if __name__ == '__main__':

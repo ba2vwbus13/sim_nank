@@ -38,8 +38,8 @@
    <!-- cd yolov5,  conda activate yolov5,   python object_following_yolo.py-->
 
    <!-- これは動かなかった -->
-   <!--
+   <!-- -->
    <node name="object_following" pkg="sim_nank" type="$(arg follow_argorithm)" output="screen" />
-   -->
+   <!-- -->
 
 </launch>

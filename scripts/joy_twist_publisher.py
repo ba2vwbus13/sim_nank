@@ -15,7 +15,7 @@ class JoyController:
         self.cmd_vel.linear.y = joy_msg.axes[0]
         #self.cmd_vel.angular.z = joy_msg.axes[3]#for hp
         #self.cmd_vel.angular.z = joy_msg.axes[2]#for jetbot
-	self.cmd_vel.angular.z = joy_msg.axes[0]#for iiyama
+        self.cmd_vel.angular.z = joy_msg.axes[0]#for iiyama
         rospy.loginfo("ax0 :{}  ax1 :{}  ax2 :{}".format(joy_msg.axes[0], joy_msg.axes[1], joy_msg.axes[2]))
         
     def publish(self):

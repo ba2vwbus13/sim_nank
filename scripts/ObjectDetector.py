@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import cv2
 import torch
 from models.experimental import attempt_load
@@ -5,6 +6,7 @@ from utils.datasets import letterbox
 from utils.general import check_img_size, non_max_suppression, scale_coords
 from utils.plots import plot_one_box
 from utils.torch_utils import select_device
+from conversion_utils import bbox_to_rbbox
 import numpy as np
 from numpy import random
 
@@ -37,14 +39,14 @@ class ObjectDetector:
 
         detections = []
         for *xyxy, conf, cls in reversed(preds):
-            xyxy[0] = xyxy[0].to('cpu').detach().numpy().copy()/width
-            xyxy[1] = xyxy[1].to('cpu').detach().numpy().copy()/height
-            xyxy[2] = xyxy[2].to('cpu').detach().numpy().copy()/width
-            xyxy[3] = xyxy[3].to('cpu').detach().numpy().copy()/height
+            xyxy[0] = int(xyxy[0].to('cpu').detach().numpy().copy())
+            xyxy[1] = int(xyxy[1].to('cpu').detach().numpy().copy())
+            xyxy[2] = int(xyxy[2].to('cpu').detach().numpy().copy())
+            xyxy[3] = int(xyxy[3].to('cpu').detach().numpy().copy())
             conf = conf.to('cpu').detach().numpy()
             label = f'{self.names[int(cls)]}'
-            list = {'bbox': xyxy, 'label' : int(cls), 
-            'label_name': f'{self.names[int(cls)]}', 'prob' : conf}
+            list = {'bbox': xyxy, 'rbbox': bbox_to_rbbox(xyxy, img), 'label' : int(cls), 
+            'label_name': f'{self.names[int(cls)]}', 'prob' : conf, 'color' :self.colors[int(cls)]}
             detections.append(list)
 
         #print('detections :{}'.format(detections))

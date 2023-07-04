@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 #iiyama = python2
 #jetbot = python3
@@ -31,7 +31,7 @@ class ObjectFollowingController:
             self.turn_block = rospy.get_param('turn_block')
             self.turn_gain = rospy.get_param('turn_gain')
             self.target_label = rospy.get_param('target_label')
-            self.display = rospy.get_param('display')
+            self.display = True
         else:
             avoidance_model_path = "/home/nakahira/catkin_ws/src/sim_nank/weights/best_model_resnet18.pth"
             following_model_path = '/home/nakahira/catkin_ws/src/sim_nank/weights/yolov5m.pt'
